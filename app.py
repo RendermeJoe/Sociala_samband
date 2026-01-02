@@ -1,8 +1,23 @@
 import streamlit as st
 import networkx as nx
 import matplotlib.pyplot as plt
+from supabase import create_client
 
 st.set_page_config(page_title="Socialsamband", layout="wide")
+
+supabase = create_client(
+    st.secrets["SUPABASE_URL"],
+    st.secrets["SUPABASE_ANON_KEY"]
+)
+
+share_id = st.query_params.get("map")
+
+if share_id:
+    res = supabase.table("maps").select("id,title").eq("share_id", share_id).single().execute()
+    st.sidebar.write("Laddar karta:", res.data)
+else:
+    st.sidebar.info("Ingen map i URL. Lägg till ?map=<share_id>")
+
 
 # --- Inmatning ---
 st.sidebar.header("Skriv in ditt namn och välj vilka du har ett socialt samband med!")
